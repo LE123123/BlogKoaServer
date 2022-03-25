@@ -12,9 +12,12 @@ const { PORT } = process.env;
 
 // import createFakeData from './createFakeData';
 mongoose
-  .connect('mongodb://hyunseo:gustj486!!@localhost:27017', {
-    dbName: 'blog',
-  })
+  .connect(
+    'mongodb+srv://hyunseo:gustj486!!@cluster0.3g9wa.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+    {
+      dbName: 'blog',
+    },
+  )
   .then(() => {
     console.log('Connected to MongoDB');
     // createFakeData();
