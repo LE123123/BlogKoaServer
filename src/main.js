@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import serve from 'koa-static';
 import path from 'path';
 import send from 'koa-send';
+import cors from '@koa/cors';
 
 const { PORT } = process.env;
 
@@ -32,10 +33,17 @@ import jwtMiddleware from './lib/jwtMiddleware';
 const app = new Koa();
 const router = new Router();
 
+let corsOption = {
+  origin: process.env.CLIENT_HOST,
+  credentials: true,
+};
+
 router.use('/api', api.routes());
 
 app.use(bodyParser());
 app.use(jwtMiddleware);
+
+app.use(cors(corsOption));
 
 app.use(router.routes()).use(router.allowedMethods());
 
