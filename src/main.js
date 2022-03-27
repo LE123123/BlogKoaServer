@@ -8,6 +8,15 @@ import serve from 'koa-static';
 import path from 'path';
 import send from 'koa-send';
 import cors from '@koa/cors';
+import https from 'https';
+import fs from 'fs';
+
+const HTTPS_PORT = 4000;
+
+const options = {
+  key: fs.readFileSync(path.resolve(__dirname, './private.pem')),
+  cert: fs.readFileSync(path.resolve(__dirname, './public.pem')),
+};
 
 const { PORT } = process.env;
 
@@ -33,31 +42,40 @@ import jwtMiddleware from './lib/jwtMiddleware';
 const app = new Koa();
 const router = new Router();
 
+// TODO: 다른 도메인에서의 cookie공유 (x)
 let corsOption = {
-  origin: process.env.CLIENT_HOST,
+  origin: 'http://localhost:3000',
   credentials: true,
 };
+
+app.proxy = true;
+app.use(cors(corsOption));
 
 router.use('/api', api.routes());
 
 app.use(bodyParser());
 app.use(jwtMiddleware);
 
-app.use(cors(corsOption));
-
 app.use(router.routes()).use(router.allowedMethods());
 
-const buildDirectory = path.resolve(__dirname, '../../blog-frontend/build');
-app.use(serve(buildDirectory));
-app.use(async (ctx) => {
-  // Not Found이고, 주소가 /api로 시작하지 않는 경우
-  if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {
-    // index.html의 내용을 반환
-    await send(ctx, 'index.html', { root: buildDirectory });
-  }
+// const buildDirectory = path.resolve(__dirname, '../../blog-frontend/build');
+// app.use(serve(buildDirectory));
+// app.use(async (ctx) => {
+//   // Not Found이고, 주소가 /api로 시작하지 않는 경우
+//   if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {
+//     // index.html의 내용을 반환
+//     await send(ctx, 'index.html', { root: buildDirectory });
+//   }\
+// });
+
+// const port = PORT || 4001;
+const port = 4001;
+app.listen(port, () => {
+  console.log('HTTP server Listening on PORT ' + port);
 });
 
-const port = PORT || 4000;
-app.listen(port, () => {
-  console.log(`Listening to port ${port}`);
+const httpsServer = https.createServer(options, app.callback());
+
+httpsServer.listen(HTTPS_PORT, () => {
+  console.log('HTTPS server listening on PORT ' + HTTPS_PORT);
 });

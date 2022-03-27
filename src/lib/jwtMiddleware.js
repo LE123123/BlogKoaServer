@@ -4,6 +4,7 @@ import User from '../models/user';
 
 const jwtMiddleware = async (ctx, next) => {
   const token = ctx.cookies.get('access_token');
+  console.log('token', token);
 
   if (!token) {
     return next();
@@ -21,6 +22,8 @@ const jwtMiddleware = async (ctx, next) => {
       ctx.cookies.set('access_token', token, {
         maxAge: 1000 * 60 * 60 * 24 * 6, // 7일
         httpOnly: true,
+        sameSite: 'none',
+        secure: true,
       });
     }
     console.log(decoded);
