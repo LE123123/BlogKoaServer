@@ -14,8 +14,8 @@ import fs from 'fs';
 const HTTPS_PORT = 4000;
 
 const options = {
-  key: fs.readFileSync(path.resolve(__dirname, './private.pem')),
-  cert: fs.readFileSync(path.resolve(__dirname, './public.pem')),
+  key: fs.readFileSync(path.resolve(__dirname, '../ssl/private.pem')),
+  cert: fs.readFileSync(path.resolve(__dirname, '../ssl/public.pem')),
 };
 
 const { PORT } = process.env;
@@ -44,7 +44,7 @@ const router = new Router();
 
 // TODO: 다른 도메인에서의 cookie공유 (x)
 let corsOption = {
-  origin: 'http://localhost:3000',
+  origin: process.env.CLIENT_HOST,
   credentials: true,
 };
 
